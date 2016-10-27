@@ -1,5 +1,5 @@
 /*
-  MeggyJr_Blink.pde
+  Snake.pde by Lauryn Tachino
  
  Example file using the The Meggy Jr Simplified Library (MJSL)
   from the Meggy Jr RGB library for Arduino
@@ -45,11 +45,17 @@ struct Point
    int y;
 };
 
-Point p1 = {3,4};
+Point p1 = {2,4};
+Point p2 = {3,4};
+Point p3 = {3,4};
+Point p4 = {3,4};
+Point snakeArray[64] = {p1,p2,p3,p4};
+int marker = 4;    // Index of first empty segement of the array
 int direction = 0;
 int xapple = random(8);
 int yapple = random(8);
 int binary = 0;
+int speed = 200;
 
 void setup()                    // run once, when the sketch starts
 {
@@ -59,23 +65,26 @@ void setup()                    // run once, when the sketch starts
 void loop()                     // run over and over again
 {
   updateSnake();
-  DrawPx(xapple,yapple,Red);
+  DrawPx(xapple,yapple,Red);  // Draws apple
   // Have we eaten apple?
-  if (ReadPx(p1.x,p1.y) == Red)
+  if (ReadPx(snakeArray[0].x,snakeArray[0].y) == Red) 
   {
-    xapple = random(8);
+    xapple = random(8);    // new random apple location if eaten
     yapple = random(8);
-    Tone_Start(13100,50);
-    binary = binary * 2 + 1;
-    if (binary > 255)
+    Tone_Start(13100,50);   // Sound when apple is eaten
+    marker++;
+    binary = binary * 2 + 1;  // set aux leds
+    if (binary > 255)      // restart aux leds if reaches 7
     {
       binary = 0;
+      speed = speed - 50;
     }
   }
   drawSnake();
-  SetAuxLEDs(binary);
+  SetAuxLEDs(binary);         // Set aux leds when apple is eaten
   DisplaySlate();                  // Write the drawing to the screen.
-  delay(200);                  // waits for a second
+  delay(speed);                  // waits for a second
+  
   ClearSlate();                 // Erase drawing
 }
 
@@ -83,15 +92,23 @@ void loop()                     // run over and over again
 
 void updateSnake()
 {
+  // Move body
+  for (int i = marker - 1; i > 0; i--)
+  {
+    // Copy the value at i-1 into i
+    snakeArray[i] = snakeArray[i -1];
+  }
+
+  // Move head
   if (direction == 0)
   {
     // Updates y
-    p1.y = p1.y + 1;
+    snakeArray[0].y = snakeArray[0].y + 1;
 
     // Corrects for out of bounds
-    if (p1.y > 7)
+    if (snakeArray[0].y > 7)
     {
-      p1.y = 0;
+      snakeArray[0].y = 0;
     }
   }
   
@@ -99,34 +116,34 @@ void updateSnake()
   if (direction == 90)
   {
     // Updates x
-    p1.x = p1.x + 1;
+    snakeArray[0].x = snakeArray[0].x + 1;
 
     // Corrects for out of bounds
-    if(p1.x > 7)
+    if(snakeArray[0].x > 7)
     {
-      p1.x = 0;
+      snakeArray[0].x = 0;
     }
   }
   
 
   if (direction == 180)
   {
-    p1.y = p1.y - 1;
+    snakeArray[0].y = snakeArray[0].y - 1;
 
-    if (p1.y < 0)
+    if (snakeArray[0].y < 0)
     {
-      p1.y = 7;
+      snakeArray[0].y = 7;
     }
   }
 
 
   if (direction == 270)
   {
-    p1.x = p1.x - 1;
+    snakeArray[0].x = snakeArray[0].x - 1;
 
-    if (p1.x < 0)
+    if (snakeArray[0].x < 0)
     {
-      p1.x = 7;
+      snakeArray[0].x = 7;
     }
   }
   
@@ -150,7 +167,11 @@ void updateSnake()
 
 void drawSnake()
 {
-  DrawPx(p1.x,p1.y,Yellow);           // Draw a dot at x=3, y=4, in yellow
+  //Iterate through the entire array
+  for (int i = 0; i < marker; i++)
+  {
+   DrawPx(snakeArray[i].x,snakeArray[i].y,Blue);           // Draw a dot at x=3, y=4, in yellow
+  }
 }
 
 
