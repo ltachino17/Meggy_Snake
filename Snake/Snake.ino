@@ -64,6 +64,7 @@ void setup()                    // run once, when the sketch starts
 
 void loop()                     // run over and over again
 {
+  drawSnake();
   updateSnake();
   DrawPx(xapple,yapple,Red);  // Draws apple
   // Have we eaten apple?
@@ -80,7 +81,9 @@ void loop()                     // run over and over again
       speed = speed - 50;
     }
   }
-  drawSnake();
+ 
+  Checkdeath();
+  
   SetAuxLEDs(binary);         // Set aux leds when apple is eaten
   DisplaySlate();                  // Write the drawing to the screen.
   delay(speed);                  // waits for a second
@@ -99,6 +102,7 @@ void updateSnake()
     snakeArray[i] = snakeArray[i -1];
   }
 
+  
   // Move head
   if (direction == 0)
   {
@@ -170,7 +174,38 @@ void drawSnake()
   //Iterate through the entire array
   for (int i = 0; i < marker; i++)
   {
-   DrawPx(snakeArray[i].x,snakeArray[i].y,Blue);           // Draw a dot at x=3, y=4, in yellow
+   DrawPx(snakeArray[i].x,snakeArray[i].y,Blue);        // Draw a dot at x=3, y=4, in yellow
+  }
+}
+
+void Checkdeath()
+{
+  if (ReadPx(snakeArray[0].x,snakeArray[0].y) == Blue)  // If the head hits the body
+  {
+    ClearSlate();         // Clears screen
+    Tone_Start(20000,50);   // Produce a sound
+    CheckButtonsPress();
+
+    // Creates violet line on screen
+    for (int i = 0; i < 0; i++)
+    {
+      DrawPx(i,0,Violet);
+      DrawPx(0,i,Violet);
+    }
+    for (int i = 0; i < 0; i++)
+    {
+      DrawPx(i,7,Violet);
+      DrawPx(7,i,Violet);
+    }
+    for (int i = 2; i < 6; i++)
+    {
+      DrawPx(i,i,Violet);
+    }
+    for (int i = 6; i < 2; i++)
+    {
+      DrawPx(i,i,Violet);
+    }
+    DisplaySlate();
   }
 }
 
